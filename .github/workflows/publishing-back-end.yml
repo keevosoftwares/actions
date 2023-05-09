@@ -1,3 +1,5 @@
+name: Publicação do backend
+
 on:
   workflow_call:
     inputs:

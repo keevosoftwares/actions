@@ -1,5 +1,3 @@
-name: Publicação de pacote individual
-
 on:
   workflow_call:
     inputs:

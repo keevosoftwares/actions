@@ -1,4 +1,4 @@
-name: Processo de publicação de monitores
+name: Processo para o ecr
 
 on:
   workflow_call:

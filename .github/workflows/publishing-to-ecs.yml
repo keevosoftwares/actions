@@ -35,18 +35,51 @@ on:
 jobs:
   build:
     name: Processo de compilação
-    # uses: keevosoftwares/actions/.github/workflows/publishing-to-ecr.yml@master
-    uses: ./.github/workflows/publishing-to-ecr.yml@master
-    with:
-      DOCKER_FILE: ${{ inputs.DOCKER_FILE }}
-      PATH_PROJECT: ${{ inputs.PATH_PROJECT }}
-      CONFIG_FILE: ${{ inputs.CONFIG_FILE }}
-    secrets:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      DOTNET_VERSION: ${{ secrets.DOTNET_VERSION }}
-      ECR_IMAGE: ${{ secrets.ECR_IMAGE }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Configurando dotnet
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ secrets.DOTNET_VERSION }}
+
+    - name: Compilando
+      run: dotnet build ${{ inputs.PATH_PROJECT }} /p:Configuration="Release" --configfile ${{ inputs.CONFIG_FILE }}
+
+  push_to_ecr:
+    name: Criação da imagem no ECR
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Configurando as credenciais na AWS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login no Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Compilando data atual
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+
+      - name: Criando backup da imagem atual
+        run: |
+          docker pull ${{ secrets.ECR_IMAGE }}
+          docker image tag ${{ secrets.ECR_IMAGE }} ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
+          docker push ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
+
+      - name: Preparando e enviando imagem para o Amazon ECR
+        run: |
+          docker build -t ${{ secrets.ECR_IMAGE }} -f ${{ inputs.DOCKER_FILE }} .
+          docker push ${{ secrets.ECR_IMAGE }}
 
   publish_to_ecs:
     name: Publicação no ECS

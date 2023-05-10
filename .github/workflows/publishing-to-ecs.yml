@@ -34,7 +34,7 @@ on:
 
 jobs:
   build:
-    name: Processo de compilação
+    name: Compilando projeto
     runs-on: ubuntu-latest
 
     steps:
@@ -48,7 +48,7 @@ jobs:
       run: dotnet build ${{ inputs.PATH_PROJECT }} /p:Configuration="Release" --configfile ${{ inputs.CONFIG_FILE }}
 
   push_to_ecr:
-    name: Criação da imagem no ECR
+    name: Criando imagem no ECR
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -82,7 +82,7 @@ jobs:
           docker push ${{ secrets.ECR_IMAGE }}
 
   publish_to_ecs:
-    name: Publicação no ECS
+    name: Distribuindo aplicação no ECS
     runs-on: ubuntu-latest
     needs: build
     steps:

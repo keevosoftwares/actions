@@ -35,7 +35,8 @@ on:
 jobs:
   build:
     name: Processo de compilação
-    uses: keevosoftwares/actions/.github/workflows/publishing-to-ecr.yml@master
+    # uses: keevosoftwares/actions/.github/workflows/publishing-to-ecr.yml@master
+    uses: ./.github/workflows/publishing-to-ecr.yml@master
     with:
       DOCKER_FILE: ${{ inputs.DOCKER_FILE }}
       PATH_PROJECT: ${{ inputs.PATH_PROJECT }}

@@ -30,9 +30,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Configurando dotnet
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ secrets.DOTNET_VERSION }}
 
@@ -45,7 +45,7 @@ jobs:
     needs: build
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configurando as credenciais na AWS
         uses: aws-actions/configure-aws-credentials@v1

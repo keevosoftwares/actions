@@ -113,7 +113,7 @@ jobs:
                   done
 
                   if [ "$deleteVersao" = true ]; then
-                      aws lambda delete-function --function-name LambdaVersionada:$versao
+                      aws lambda delete-function --function-name ${{ inputs.FUNCTION_NAME }}:$versao
                   fi
               fi
           done

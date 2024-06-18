@@ -78,6 +78,12 @@ jobs:
                   ;;
               "refs/heads/master")
                   echo "ALIAS=prod" >> $GITHUB_ENV
+                  ;;
+              "qas")
+                  echo "ALIAS=qas" >> $GITHUB_ENV
+                  ;;
+              "master")
+                  echo "ALIAS=prod" >> $GITHUB_ENV
                   ;;    
           esac
 

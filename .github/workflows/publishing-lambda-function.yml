@@ -82,6 +82,9 @@ jobs:
               "qas")
                   echo "ALIAS=qas" >> $GITHUB_ENV
                   ;;
+              "Qas")
+                  echo "ALIAS=qas" >> $GITHUB_ENV
+                  ;;
               "master")
                   echo "ALIAS=prod" >> $GITHUB_ENV
                   ;;    

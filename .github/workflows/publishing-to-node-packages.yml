@@ -30,7 +30,6 @@ jobs:
     #     with:
     #       node-version: ${{ secrets.NODE_VERSION }}
     #       registry-url: 'https://npm.pkg.github.com'
-    #       # Defaults to the user or organization that owns the workflow file
     #       scope: '@keevosoftwares'
     #   - run: npm i
     #   - run: npm ci
@@ -50,3 +49,4 @@ jobs:
           token: ${{ secrets.GIT_TOKEN }}
           registry: "https://npm.pkg.github.com"
           package: ${{ inputs.WORKING_DIRECTORY }}
+          provenance: true

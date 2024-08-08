@@ -40,33 +40,33 @@ jobs:
     #     env:
     #       NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
 
+    # steps:
+    #   - uses: actions/checkout@v4
+    #   - uses: actions/setup-node@v4
+    #     with:
+    #       node-version: ${{ secrets.NODE_VERSION }}
+    #   - run: npm i
+    #   - run: npm ci
+    #   - run: npm run build
+    #   - uses: JS-DevTools/npm-publish@v3
+    #     with:
+    #       token: ${{ secrets.GIT_TOKEN }}
+    #       registry: "https://npm.pkg.github.com"
+    #       package: ${{ inputs.PATH_PACKAGES }}
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ secrets.NODE_VERSION }}
+          registry-url: "https://npm.pkg.github.com"
       - run: npm i
       - run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
       - run: npm run build
       - uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.GIT_TOKEN }}
           registry: "https://npm.pkg.github.com"
           package: ${{ inputs.PATH_PACKAGES }}
-
-    # steps:
-    #   - uses: actions/checkout@v4
-    #   - uses: actions/setup-node@v4
-    #     with:
-    #       node-version: ${{ secrets.NODE_VERSION }}
-    #       registry-url: "https://npm.pkg.github.com"
-    #   - run: npm i
-    #   - run: npm ci
-    #     env:
-    #       NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
-    #   - run: npm run build
-    #   - uses: JS-DevTools/npm-publish@v3
-    #     with:
-    #       token: ${{ secrets.GIT_TOKEN }}
-    #       registry: "https://npm.pkg.github.com"
-    #       package: ${{ inputs.WORKING_DIRECTORY }}

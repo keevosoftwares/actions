@@ -64,3 +64,5 @@ jobs:
       - uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.GIT_TOKEN }}
+          registry: "https://npm.pkg.github.com"
+          package: ${{ inputs.WORKING_DIRECTORY }}

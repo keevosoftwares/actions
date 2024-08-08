@@ -33,7 +33,7 @@ jobs:
           # Defaults to the user or organization that owns the workflow file
           scope: '@keevosoftwares'
       - run: npm i -f
-      - run: npm ci
+      - run: npm ci -f
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}

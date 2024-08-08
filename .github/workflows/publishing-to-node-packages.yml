@@ -8,9 +8,9 @@ on:
         WORKING_DIRECTORY:
             required: true
             type: string
-        PATH_PACKAGES:
-            required: true
-            type: string
+        # PATH_PACKAGES:
+        #     required: true
+        #     type: string
     secrets:
         NODE_VERSION:
             required: true
@@ -27,18 +27,18 @@ jobs:
       run:
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
 
-    # steps:
-    #   - uses: actions/checkout@v4
-    #   - uses: actions/setup-node@v4
-    #     with:
-    #       node-version: ${{ secrets.NODE_VERSION }}
-    #       registry-url: 'https://npm.pkg.github.com'
-    #       scope: '@keevosoftwares'
-    #   - run: npm i
-    #   - run: npm ci
-    #   - run: npm publish
-    #     env:
-    #       NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ secrets.NODE_VERSION }}
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@keevosoftwares'
+      - run: npm i
+      - run: npm ci
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
 
     # steps:
     #   - uses: actions/checkout@v4
@@ -54,19 +54,19 @@ jobs:
     #       registry: "https://npm.pkg.github.com"
     #       package: ${{ inputs.PATH_PACKAGES }}
 
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ secrets.NODE_VERSION }}
-          registry-url: "https://npm.pkg.github.com"
-      - run: npm i
-      - run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
-      - run: npm run build
-      - uses: JS-DevTools/npm-publish@v3
-        with:
-          token: ${{ secrets.GIT_TOKEN }}
-          registry: "https://npm.pkg.github.com"
-          package: ${{ inputs.PATH_PACKAGES }}
+    # steps:
+    #   - uses: actions/checkout@v4
+    #   - uses: actions/setup-node@v4
+    #     with:
+    #       node-version: ${{ secrets.NODE_VERSION }}
+    #       registry-url: "https://npm.pkg.github.com"
+    #   - run: npm i
+    #   - run: npm ci
+    #     env:
+    #       NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
+    #   - run: npm run build
+    #   - uses: JS-DevTools/npm-publish@v3
+    #     with:
+    #       token: ${{ secrets.GIT_TOKEN }}
+    #       registry: "https://npm.pkg.github.com"
+    #       package: ${{ inputs.PATH_PACKAGES }}

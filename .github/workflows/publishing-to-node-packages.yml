@@ -40,7 +40,7 @@ jobs:
           scope: '@keevosoftwares'
 
       - name: Restaurando dependências
-        run: npm i
+        run: npm i -f
 
       - name: Compilando projeto
         run: ${{ inputs.RUN_COMMAND }}

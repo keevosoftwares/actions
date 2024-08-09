@@ -45,16 +45,16 @@ jobs:
       - name: Compilando projeto
         run: ${{ inputs.RUN_COMMAND }}
 
-      - name: Exclusão do pacote no nuget
-        uses: actions/delete-package-versions@v4
-        with:
-          package-name: ${{ inputs.PROJECT_NAME }}
-          token: ${{ secrets.GIT_TOKEN }}
-          package-type: npm
+      # - name: Exclusão do pacote no nuget
+      #   uses: actions/delete-package-versions@v4
+      #   with:
+      #     package-name: ${{ inputs.PROJECT_NAME }}
+      #     token: ${{ secrets.GIT_TOKEN }}
+      #     package-type: npm
 
       - name: Publicando pacote
         run: |
-          cd ${{ inputs.DIR_DIST }}
+          cd ${{ inputs.DIST_DIRECTORY }}
           npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GIT_TOKEN }}
           npm publish
         env:

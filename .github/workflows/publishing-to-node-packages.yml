@@ -8,10 +8,10 @@ on:
         WORKING_DIRECTORY:
             required: true
             type: string
-        RUN_COMMAND:
+        DIST_DIRECTORY:
             required: true
             type: string
-        DIR_DIST:
+        RUN_COMMAND:
             required: true
             type: string
     secrets:

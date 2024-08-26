@@ -12,6 +12,10 @@ on:
         COMMAND_BUILD:
             required: true
             type: string
+        COMMAND_PURGE:
+            required: true
+            type: string
+            
     secrets:
         AWS_REGION:
             required: true
@@ -50,6 +54,9 @@ jobs:
 
       - name: Compilação do projeto
         run: ${{ inputs.COMMAND_BUILD }}
+
+      - name: Purge css
+        run: ${{ inputs.COMMAND_PURGE }}
 
       - name: Cópia da distribuição para o bucket
         uses: jakejarvis/s3-sync-action@v0.5.1

@@ -42,6 +42,7 @@ jobs:
   push_to_ecr:
     name: Criação da imagem no ECR
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: build
     steps:
       - name: Check out code

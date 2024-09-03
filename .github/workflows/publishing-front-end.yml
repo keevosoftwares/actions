@@ -28,6 +28,7 @@ jobs:
   build:
     name: Processo de deploy do frontend
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
         run:
           working-directory: ${{ inputs.WORKING_DIRECTORY }}

@@ -48,10 +48,10 @@ jobs:
         dotnet-version: ${{ secrets.DOTNET_VERSION }}
 
     - name: Restaurando dependências
-      run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet restore /p:Configuration="Release" 
+      run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet restore ${{ inputs.PATH_PROJECT }} /p:Configuration="Release" --configfile ${{ inputs.CONFIG_FILE }}
 
     - name: Compilando projeto
-      run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet build -c Release --configfile ${{ inputs.CONFIG_FILE }}
+      run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet build ${{ inputs.PATH_PROJECT }} -c Release --configfile ${{ inputs.CONFIG_FILE }}
 
   push_to_ecr:
     name: Criando imagem no ECR

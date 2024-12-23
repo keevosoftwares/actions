@@ -31,6 +31,8 @@ on:
           required: true
       ECS_TASK_DEFINITION_NAME:
           required: true
+      VERSION_SUFFIX:
+          required: true
 
 jobs:
   build:

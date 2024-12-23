@@ -34,6 +34,9 @@ on:
       VERSION_SUFFIX:
           required: true
 
+env:
+  VERSION_SUFFIX: '${{ secrets.VERSION_SUFFIX }}'
+
 jobs:
   build:
     name: Compilando projeto
@@ -84,7 +87,7 @@ jobs:
 
       - name: Preparando e enviando imagem para o Amazon ECR
         run: |
-          docker build --build-arg VERSION_SUFFIX=${{ secrets.VERSION_SUFFIX }} -t ${{ secrets.ECR_IMAGE }} -f ${{ inputs.DOCKER_FILE }} .
+          docker build --build-arg VERSION_SUFFIX=$VERSION_SUFFIX -t ${{ secrets.ECR_IMAGE }} -f ${{ inputs.DOCKER_FILE }} .
           docker push ${{ secrets.ECR_IMAGE }}
 
   publish_to_ecs:

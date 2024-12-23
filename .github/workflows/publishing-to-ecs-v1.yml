@@ -51,10 +51,10 @@ jobs:
         dotnet-version: ${{ secrets.DOTNET_VERSION }}
 
     - name: Restaurando dependências
-      run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet restore ${{ inputs.PATH_PROJECT }} /p:Configuration="Release" --configfile ${{ inputs.CONFIG_FILE }}
+      run: Environment=$VERSION_SUFFIX dotnet restore ${{ inputs.PATH_PROJECT }} /p:Configuration="Release" --configfile ${{ inputs.CONFIG_FILE }}
 
     - name: Compilando projeto
-      run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet build ${{ inputs.PATH_PROJECT }} -c Release --configfile ${{ inputs.CONFIG_FILE }}
+      run: Environment=$VERSION_SUFFIX dotnet build ${{ inputs.PATH_PROJECT }} -c Release --configfile ${{ inputs.CONFIG_FILE }}
 
   push_to_ecr:
     name: Criando imagem no ECR
@@ -87,7 +87,7 @@ jobs:
 
       - name: Preparando e enviando imagem para o Amazon ECR
         run: |
-          docker build --build-arg VERSION_SUFFIX=$VERSION_SUFFIX -t ${{ secrets.ECR_IMAGE }} -f ${{ inputs.DOCKER_FILE }} .
+          docker build --build-arg Environment=$VERSION_SUFFIX -t ${{ secrets.ECR_IMAGE }} -f ${{ inputs.DOCKER_FILE }} .
           docker push ${{ secrets.ECR_IMAGE }}
 
   publish_to_ecs:

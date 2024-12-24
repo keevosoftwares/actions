@@ -35,58 +35,73 @@ on:
           required: true
 
 jobs:
-  build:
-    name: Compilando projeto
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Configurando dotnet
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ secrets.DOTNET_VERSION }}
-
-    - name: Restaurando dependências
-      run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet restore ${{ inputs.PATH_PROJECT }} /p:Configuration="Release" --configfile ${{ inputs.CONFIG_FILE }}
-
-    - name: Compilando projeto
-      run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet build ${{ inputs.PATH_PROJECT }} -c Release --configfile ${{ inputs.CONFIG_FILE }}
-
   push_to_ecr:
-    name: Criando imagem no ECR
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: build
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+    uses: keevosoftwares/actions/.github/workflows/publishing-to-ecr-v1.yml@master
+    with:
+      DOCKER_FILE: ${{ inputs.DOCKER_FILE }}
+      PATH_PROJECT: ${{ inputs.PATH_PROJECT }}
+      CONFIG_FILE: ${{ inputs.CONFIG_FILE }}
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      DOTNET_VERSION: ${{ secrets.DOTNET_VERSION }}
+      ECR_IMAGE: ${{ secrets.ECR_IMAGE }}
+      VERSION_SUFFIX: ${{ secrets.VERSION_SUFFIX }}
 
-      - name: Configurando as credenciais na AWS
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Login no Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+  # build:
+  #   name: Compilando projeto
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
 
-      - name: Compilando data atual
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: Configurando dotnet
+  #     uses: actions/setup-dotnet@v4
+  #     with:
+  #       dotnet-version: ${{ secrets.DOTNET_VERSION }}
 
-      - name: Criando backup da imagem atual
-        run: |
-          docker pull ${{ secrets.ECR_IMAGE }}
-          docker image tag ${{ secrets.ECR_IMAGE }} ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
-          docker push ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
+  #   - name: Restaurando dependências
+  #     run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet restore ${{ inputs.PATH_PROJECT }} /p:Configuration="Release" --configfile ${{ inputs.CONFIG_FILE }}
 
-      - name: Preparando e enviando imagem para o Amazon ECR
-        run: |
-          docker build --build-arg VERSION_SUFFIX=${{ secrets.VERSION_SUFFIX }} -t ${{ secrets.ECR_IMAGE }} -f ${{ inputs.DOCKER_FILE }} .
-          docker push ${{ secrets.ECR_IMAGE }}
+  #   - name: Compilando projeto
+  #     run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet build ${{ inputs.PATH_PROJECT }} -c Release --configfile ${{ inputs.CONFIG_FILE }}
+
+  # push_to_ecr:
+  #   name: Criando imagem no ECR
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 15
+  #   needs: build
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v4
+
+  #     - name: Configurando as credenciais na AWS
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ${{ secrets.AWS_REGION }}
+
+  #     - name: Login no Amazon ECR
+  #       id: login-ecr
+  #       uses: aws-actions/amazon-ecr-login@v2
+
+  #     - name: Compilando data atual
+  #       id: date
+  #       run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+
+  #     - name: Criando backup da imagem atual
+  #       run: |
+  #         docker pull ${{ secrets.ECR_IMAGE }}
+  #         docker image tag ${{ secrets.ECR_IMAGE }} ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
+  #         docker push ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
+
+  #     - name: Preparando e enviando imagem para o Amazon ECR
+  #       run: |
+  #         docker build --build-arg VERSION_SUFFIX=${{ secrets.VERSION_SUFFIX }} -t ${{ secrets.ECR_IMAGE }} -f ${{ inputs.DOCKER_FILE }} .
+  #         docker push ${{ secrets.ECR_IMAGE }}
 
   publish_to_ecs:
     name: Distribuindo aplicação no ECS

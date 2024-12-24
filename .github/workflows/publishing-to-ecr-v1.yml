@@ -28,7 +28,7 @@ on:
 
 jobs:
   build:
-    name: Processo de compilação
+    name: Compilando projeto
     runs-on: ubuntu-latest
     timeout-minutes: 30
 

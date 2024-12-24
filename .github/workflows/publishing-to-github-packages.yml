@@ -23,7 +23,8 @@ jobs:
   build:
     name: Compilando pacote ${{ inputs.PROJECT_NAME }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
+    permissions: write-all
     defaults:
       run:
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
@@ -48,7 +49,6 @@ jobs:
           package-name: ${{ inputs.PROJECT_NAME }}
           token: ${{ secrets.GIT_TOKEN }}
           package-type: nuget
-          #min-versions-to-keep: 3 #Será utilizado quando estivermos versionando os componentes por sprint
 
       - name: Publicando pacote
         run: |

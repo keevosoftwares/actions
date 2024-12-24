@@ -34,9 +34,6 @@ on:
       VERSION_SUFFIX:
           required: true
 
-# env:
-#   VERSION_SUFFIX: '${{ secrets.VERSION_SUFFIX }}'
-
 jobs:
   build:
     name: Compilando projeto
@@ -44,9 +41,9 @@ jobs:
     timeout-minutes: 30
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Configurando dotnet
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ secrets.DOTNET_VERSION }}
 
@@ -59,13 +56,14 @@ jobs:
   push_to_ecr:
     name: Criando imagem no ECR
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: build
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configurando as credenciais na AWS
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -73,7 +71,7 @@ jobs:
 
       - name: Login no Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Compilando data atual
         id: date
@@ -93,10 +91,11 @@ jobs:
   publish_to_ecs:
     name: Distribuindo aplicação no ECS
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: push_to_ecr
     steps:
       - name: Configurando as credenciais na AWS
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -104,7 +103,7 @@ jobs:
 
       - name: Login no Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Baixando definição de task do ECR
         run: |
@@ -120,7 +119,7 @@ jobs:
           image: ${{ secrets.ECR_IMAGE }}
 
       - name: Atualizando definição de task do ECR
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def-prod.outputs.task-definition }}
           service: ${{ secrets.ECS_SERVICE_NAME }}

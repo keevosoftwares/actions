@@ -25,26 +25,26 @@ on:
           required: true
 
 jobs:
-  build:
-    name: Processo de compilação
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+  # build:
+  #   name: Processo de compilação
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Configurando dotnet
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ secrets.DOTNET_VERSION }}
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: Configurando dotnet
+  #     uses: actions/setup-dotnet@v4
+  #     with:
+  #       dotnet-version: ${{ secrets.DOTNET_VERSION }}
 
-    - name: Compilando
-      run: dotnet build ${{ inputs.PATH_PROJECT }} /p:Configuration="Release" --configfile ${{ inputs.CONFIG_FILE }}
+  #   - name: Compilando
+  #     run: dotnet build ${{ inputs.PATH_PROJECT }} /p:Configuration="Release" --configfile ${{ inputs.CONFIG_FILE }}
 
   push_to_ecr:
     name: Criação da imagem no ECR
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: build
+    # needs: build
     steps:
       - name: Check out code
         uses: actions/checkout@v4

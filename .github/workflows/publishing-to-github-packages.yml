@@ -42,13 +42,13 @@ jobs:
       - name: Compilando projeto
         run: dotnet build -c Release -o out
 
-      - name: Exclusão do pacote no nuget
-        uses: actions/delete-package-versions@v4
-        with:
-          owner: ${{ secrets.OWNER }}
-          package-name: ${{ inputs.PROJECT_NAME }}
-          token: ${{ secrets.GIT_TOKEN }}
-          package-type: nuget
+      # - name: Exclusão do pacote no nuget
+      #   uses: actions/delete-package-versions@v4
+      #   with:
+      #     owner: ${{ secrets.OWNER }}
+      #     package-name: ${{ inputs.PROJECT_NAME }}
+      #     token: ${{ secrets.GIT_TOKEN }}
+      #     package-type: nuget
 
       - name: Publicando pacote
         run: |

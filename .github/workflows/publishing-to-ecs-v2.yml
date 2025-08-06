@@ -6,9 +6,6 @@ on:
       DOCKER_FILE:
         required: true
         type: string
-      ECR_IMAGE:
-        required: true
-        type: string
       ECS_CLUSTER_NAME:
         required: true
         type: string
@@ -31,6 +28,8 @@ on:
       AWS_REGION:
         required: true
       AWS_SECRET_ACCESS_KEY:
+        required: true
+      ECR_IMAGE:
         required: true
 
 jobs:

@@ -6,18 +6,6 @@ on:
       DOCKER_FILE:
         required: true
         type: string
-      # PATH_PROJECT:
-      #   required: true
-      #   type: string
-      # CONFIG_FILE:
-      #   required: true
-      #   type: string
-      # DOTNET_VERSION:
-      #   required: true
-      #   type: string
-      ECR_IMAGE:
-        required: true
-        type: string
       VERSION_SUFFIX:
         required: true
         type: string
@@ -28,31 +16,14 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
+      ECR_IMAGE:
+        required: true
 
 jobs:
-  # build:
-  #   name: Compilando projeto
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 30
-
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #   - name: Configurando dotnet
-  #     uses: actions/setup-dotnet@v4
-  #     with:
-  #       dotnet-version: ${{ secrets.DOTNET_VERSION }}
-
-  #   - name: Restaurando dependências
-  #     run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet restore ${{ inputs.PATH_PROJECT }} /p:Configuration="Release" --configfile ${{ inputs.CONFIG_FILE }}
-
-  #   - name: Compilando projeto
-  #     run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet build ${{ inputs.PATH_PROJECT }} -c Release --configfile ${{ inputs.CONFIG_FILE }}
-
   push_to_ecr:
     name: Criação da imagem no ECR
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # needs: build
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -74,11 +45,11 @@ jobs:
 
       - name: Criando backup da imagem atual
         run: |
-          docker pull ${{ inputs.ECR_IMAGE }}
-          docker image tag ${{ inputs.ECR_IMAGE }} ${{ inputs.ECR_IMAGE }}_${{ steps.date.outputs.date }}
-          docker push ${{ inputs.ECR_IMAGE }}_${{ steps.date.outputs.date }}
+          docker pull ${{ secrets.ECR_IMAGE }}
+          docker image tag ${{ secrets.ECR_IMAGE }} ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
+          docker push ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
 
       - name: Preparando e enviando imagem para o Amazon ECR
         run: |
-          docker build --build-arg VERSION_SUFFIX=${{ inputs.VERSION_SUFFIX }} -t ${{ inputs.ECR_IMAGE }} -f ${{ inputs.DOCKER_FILE }} .
-          docker push ${{ inputs.ECR_IMAGE }}
+          docker build --build-arg VERSION_SUFFIX=${{ inputs.VERSION_SUFFIX }} -t ${{ secrets.ECR_IMAGE }} -f ${{ inputs.DOCKER_FILE }} .
+          docker push ${{ secrets.ECR_IMAGE }}

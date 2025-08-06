@@ -6,15 +6,6 @@ on:
       DOCKER_FILE:
         required: true
         type: string
-      # PATH_PROJECT:
-      #   required: true
-      #   type: string
-      # CONFIG_FILE:
-      #   required: true
-      #   type: string
-      # DOTNET_VERSION:
-      #   required: true
-      #   type: string
       ECR_IMAGE:
         required: true
         type: string
@@ -47,15 +38,12 @@ jobs:
     uses: keevosoftwares/actions/.github/workflows/publishing-to-ecr-v2.yml@master
     with:
       DOCKER_FILE: ${{ inputs.DOCKER_FILE }}
-      # PATH_PROJECT: ${{ inputs.PATH_PROJECT }}
-      # CONFIG_FILE: ${{ inputs.CONFIG_FILE }}
-      ECR_IMAGE: ${{ inputs.ECR_IMAGE }}
       VERSION_SUFFIX: ${{ inputs.VERSION_SUFFIX }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      # DOTNET_VERSION: ${{ inputs.DOTNET_VERSION }}
+      ECR_IMAGE: ${{ secrets.ECR_IMAGE }}
 
   publish_to_ecs:
     name: Distribuindo aplicação no ECS
@@ -85,7 +73,7 @@ jobs:
         with:
           task-definition: task-definition.json
           container-name: ${{ inputs.ECS_CONTAINER_NAME }}
-          image: ${{ inputs.ECR_IMAGE }}
+          image: ${{ secrets.ECR_IMAGE }}
 
       - name: Atualizando definição de task do ECR
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2

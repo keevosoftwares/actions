@@ -6,15 +6,15 @@ on:
       DOCKER_FILE:
         required: true
         type: string
-      PATH_PROJECT:
-        required: true
-        type: string
-      CONFIG_FILE:
-        required: true
-        type: string
-      DOTNET_VERSION:
-        required: true
-        type: string
+      # PATH_PROJECT:
+      #   required: true
+      #   type: string
+      # CONFIG_FILE:
+      #   required: true
+      #   type: string
+      # DOTNET_VERSION:
+      #   required: true
+      #   type: string
       ECR_IMAGE:
         required: true
         type: string

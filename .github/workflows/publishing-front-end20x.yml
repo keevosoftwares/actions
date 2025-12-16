@@ -55,7 +55,7 @@ jobs:
 
       - name: Compilação do projeto
         env:
-          NODE_OPTIONS: --max-old-space-size=6144
+          NODE_OPTIONS: --max-old-space-size=8192
         run: ${{ inputs.COMMAND_BUILD }}
 
       # - name: Purge css

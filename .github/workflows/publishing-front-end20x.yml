@@ -3,30 +3,30 @@ name: Publicação do frontend
 on:
   workflow_call:
     inputs:
-        WORKING_DIRECTORY:
-            required: true
-            type: string
-        SOURCE_DIR:
-            required: true
-            type: string
-        COMMAND_BUILD:
-            required: true
-            type: string
-        # COMMAND_PURGE:
-        #     required: true
-        #     type: string
-            
+      WORKING_DIRECTORY:
+        required: true
+        type: string
+      SOURCE_DIR:
+        required: true
+        type: string
+      COMMAND_BUILD:
+        required: true
+        type: string
+      # COMMAND_PURGE:
+      #     required: true
+      #     type: string
+
     secrets:
-        AWS_REGION:
-            required: true
-        AWS_ACCESS_KEY_ID:
-            required: true
-        AWS_SECRET_ACCESS_KEY:
-            required: true
-        AWS_S3_BUCKET:
-            required: true
-        AWS_DISTRIBUTION_ID:
-            required: true
+      AWS_REGION:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_S3_BUCKET:
+        required: true
+      AWS_DISTRIBUTION_ID:
+        required: true
 
 jobs:
   build:
@@ -34,8 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
-        run:
-          working-directory: ${{ inputs.WORKING_DIRECTORY }}
+      run:
+        working-directory: ${{ inputs.WORKING_DIRECTORY }}
 
     strategy:
       matrix:
@@ -48,12 +48,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: ${{ inputs.WORKING_DIRECTORY }}/package-lock.json
       - run: npm ci -f
       # - run: npm run build --if-present
 
       - name: Compilação do projeto
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
         run: ${{ inputs.COMMAND_BUILD }}
 
       # - name: Purge css
@@ -72,7 +74,7 @@ jobs:
       - name: Criação de invalidação dentro do CloudFront
         uses: awact/cloudfront-action@master
         env:
-          SOURCE_PATH: '/*'
+          SOURCE_PATH: "/*"
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

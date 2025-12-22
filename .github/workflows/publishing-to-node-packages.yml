@@ -2,23 +2,22 @@ name: Publicação de pacotes node
 on:
   workflow_call:
     inputs:
-        PROJECT_NAME:
-            required: true
-            type: string
-        WORKING_DIRECTORY:
-            required: true
-            type: string
-        DIST_DIRECTORY:
-            required: true
-            type: string
-        RUN_COMMAND:
-            required: true
-            type: string
+      PROJECT_NAME:
+        required: true
+        type: string
+      WORKING_DIRECTORY:
+        required: true
+        type: string
     secrets:
-        NODE_VERSION:
-            required: true
-        GIT_TOKEN:
-            required: true
+      NODE_VERSION:
+        required: true
+      GIT_TOKEN:
+        required: true
+      GIT_OWNER_EMAIL:
+        required: true
+      GIT_OWNER_NAME:
+        required: true
+
 jobs:
   build:
     name: Compilando pacote ${{ inputs.PROJECT_NAME }}
@@ -33,30 +32,84 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Setando versão do Node
-        uses: actions/setup-node@v4
+        with:
+          token: ${{ secrets.GIT_TOKEN }}
+
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ secrets.NODE_VERSION }}
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@keevosoftwares'
+          registry-url: "https://npm.pkg.github.com"
+          scope: "keevosoftwares"
 
-      - name: Restaurando dependências
-        run: npm i -f
+      - name: Aplicar atualização de versão (patch)
+        id: update_version
+        run: npm run package-patch-version
 
-      - name: Compilando projeto
-        run: ${{ inputs.RUN_COMMAND }}
+      - name: Instalação dos pacotes
+        run: npm i -cf && npm run build:services
+
+      - name: Publicação do pacote
+        run: npm run package-publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
+
+      - name: Git push para atualização de versão
+        working-directory: .
+        run: |
+          git config --global user.email "${{ secrets.GIT_OWNER_EMAIL }}"
+          git config --global user.name "${{ secrets.GIT_OWNER_NAME }}"
+          git fetch origin
+          git checkout -b develop origin/develop || git checkout -b develop
+          git add .
+          git commit -m "Publicação do pacote ${{ inputs.PROJECT_NAME }} v${{ steps.update_version.outputs.new_version }}"
+          git push origin develop --follow-tags
 
       - name: Exclusão do pacote no nuget
         uses: actions/delete-package-versions@v4
         with:
+          owner: keevosoftwares
           package-name: ${{ inputs.PROJECT_NAME }}
           token: ${{ secrets.GIT_TOKEN }}
           package-type: npm
+          min-versions-to-keep: 10
+# jobs:
+#   build:
+#     name: Compilando pacote ${{ inputs.PROJECT_NAME }}
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 15
+#     permissions:
+#       contents: read
+#       packages: write
+#     defaults:
+#       run:
+#         working-directory: ${{ inputs.WORKING_DIRECTORY }}
 
-      - name: Publicando pacote
-        run: |
-          cd ${{ inputs.DIST_DIRECTORY }}
-          npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GIT_TOKEN }}
-          npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
+#     steps:
+#       - uses: actions/checkout@v4
+#       - name: Setando versão do Node
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: ${{ secrets.NODE_VERSION }}
+#           registry-url: 'https://npm.pkg.github.com'
+#           scope: '@keevosoftwares'
+
+#       - name: Restaurando dependências
+#         run: npm i -f
+
+#       - name: Compilando projeto
+#         run: ${{ inputs.RUN_COMMAND }}
+
+#       - name: Exclusão do pacote no nuget
+#         uses: actions/delete-package-versions@v4
+#         with:
+#           package-name: ${{ inputs.PROJECT_NAME }}
+#           token: ${{ secrets.GIT_TOKEN }}
+#           package-type: npm
+
+#       - name: Publicando pacote
+#         run: |
+#           cd ${{ inputs.DIST_DIRECTORY }}
+#           npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GIT_TOKEN }}
+#           npm publish
+#         env:
+#           NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}

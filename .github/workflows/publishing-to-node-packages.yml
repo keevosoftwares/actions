@@ -37,7 +37,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ secrets.NODE_VERSION }}
+          node-version: ${{ secrets.NODE_VERSION }} #20.x
           registry-url: "https://npm.pkg.github.com"
           scope: "keevosoftwares"
 
@@ -56,8 +56,8 @@ jobs:
       - name: Git push para atualização de versão
         working-directory: .
         run: |
-          git config --global user.email "${{ secrets.GIT_OWNER_EMAIL }}"
-          git config --global user.name "${{ secrets.GIT_OWNER_NAME }}"
+          git config --global user.email "${{ secrets.GIT_OWNER_EMAIL }}" #marvel.mastermaq@gmail.com
+          git config --global user.name "${{ secrets.GIT_OWNER_NAME }}" #MarvelMMQ
           git fetch origin
           git checkout -b develop origin/develop || git checkout -b develop
           git add .
@@ -72,44 +72,3 @@ jobs:
           token: ${{ secrets.GIT_TOKEN }}
           package-type: npm
           min-versions-to-keep: 10
-# jobs:
-#   build:
-#     name: Compilando pacote ${{ inputs.PROJECT_NAME }}
-#     runs-on: ubuntu-latest
-#     timeout-minutes: 15
-#     permissions:
-#       contents: read
-#       packages: write
-#     defaults:
-#       run:
-#         working-directory: ${{ inputs.WORKING_DIRECTORY }}
-
-#     steps:
-#       - uses: actions/checkout@v4
-#       - name: Setando versão do Node
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: ${{ secrets.NODE_VERSION }}
-#           registry-url: 'https://npm.pkg.github.com'
-#           scope: '@keevosoftwares'
-
-#       - name: Restaurando dependências
-#         run: npm i -f
-
-#       - name: Compilando projeto
-#         run: ${{ inputs.RUN_COMMAND }}
-
-#       - name: Exclusão do pacote no nuget
-#         uses: actions/delete-package-versions@v4
-#         with:
-#           package-name: ${{ inputs.PROJECT_NAME }}
-#           token: ${{ secrets.GIT_TOKEN }}
-#           package-type: npm
-
-#       - name: Publicando pacote
-#         run: |
-#           cd ${{ inputs.DIST_DIRECTORY }}
-#           npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GIT_TOKEN }}
-#           npm publish
-#         env:
-#           NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}

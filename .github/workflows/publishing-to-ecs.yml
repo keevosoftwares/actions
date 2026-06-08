@@ -1,122 +1,52 @@
-name: Publicação do backend
+name: Processo para ECS
 
 on:
   workflow_call:
     inputs:
-      DOCKER_FILE:
+      environment:
         required: true
         type: string
-      PATH_PROJECT:
-        required: true
-        type: string
-      CONFIG_FILE:
-        required: true
-        type: string
-    secrets:
-      AWS_ACCESS_KEY_ID:
-          required: true
-      AWS_REGION:
-          required: true
-      AWS_SECRET_ACCESS_KEY:
-          required: true
-      DOTNET_VERSION:
-          required: true
-      ECR_IMAGE:
-          required: true
-      ECS_CLUSTER_NAME:
-          required: true
-      ECS_CONTAINER_NAME:
-          required: true
-      ECS_SERVICE_NAME:
-          required: true
-      ECS_TASK_DEFINITION_NAME:
-          required: true
 
 jobs:
-  build:
-    name: Compilando projeto
+  publish_image:
+    # uses: ./.github/workflows/publishing-to-ecr.yml
+    uses: keevosoftwares/actions/.github/workflows/publishing-to-ecr.yml@master
+    with:
+      environment: ${{ inputs.environment }}
+    secrets: inherit
+
+  deploy_ecs:
+    name: Deploy ECS
+    needs: publish_image
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    environment: ${{ inputs.environment }}
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Configurando dotnet
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ secrets.DOTNET_VERSION }}
-
-    - name: Compilando
-      run: dotnet build ${{ inputs.PATH_PROJECT }} /p:Configuration="Release" --configfile ${{ inputs.CONFIG_FILE }}
-
-  push_to_ecr:
-    name: Criando imagem no ECR
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: build
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Configurando as credenciais na AWS
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Login no Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Compilando data atual
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
-
-      - name: Criando backup da imagem atual
-        run: |
-          docker pull ${{ secrets.ECR_IMAGE }}
-          docker image tag ${{ secrets.ECR_IMAGE }} ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
-          docker push ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
-
-      - name: Preparando e enviando imagem para o Amazon ECR
-        run: |
-          docker build -t ${{ secrets.ECR_IMAGE }} -f ${{ inputs.DOCKER_FILE }} .
-          docker push ${{ secrets.ECR_IMAGE }}
-
-  publish_to_ecs:
-    name: Distribuindo aplicação no ECS
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: push_to_ecr
     steps:
       - name: Configurando as credenciais na AWS
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
-      - name: Login no Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Baixando definição de task do ECR
+      - name: Obter Task Definition atual
         run: |
-          aws ecs describe-task-definition --task-definition ${{ secrets.ECS_TASK_DEFINITION_NAME }} \
-          --query taskDefinition > task-definition.json
+          aws ecs describe-task-definition \
+            --task-definition ${{ secrets.ECS_TASK_DEFINITION }} \
+            --query taskDefinition \
+            > task-definition.json
 
-      - name: Baixando a nova imagem para definição de task do ECR
-        id: task-def-prod
+      - name: Atualizar imagem da Task Definition
+        id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
           container-name: ${{ secrets.ECS_CONTAINER_NAME }}
           image: ${{ secrets.ECR_IMAGE }}
 
-      - name: Atualizando definição de task do ECR
+      - name: Deploy no ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
-          task-definition: ${{ steps.task-def-prod.outputs.task-definition }}
-          service: ${{ secrets.ECS_SERVICE_NAME }}
-          cluster: ${{ secrets.ECS_CLUSTER_NAME }}
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          cluster: ${{ secrets.ECS_CLUSTER }}
+          service: ${{ secrets.ECS_SERVICE }}
           wait-for-service-stability: true

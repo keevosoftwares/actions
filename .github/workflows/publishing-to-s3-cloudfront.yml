@@ -32,6 +32,11 @@ jobs:
       - name: Compilação do projeto
         run: ${{ vars.BUILD_COMMAND }}
 
+      - name: Inspect build output
+        run: |
+          pwd
+          find dist -type d
+
       - name: Configurando as credenciais na AWS
         uses: aws-actions/configure-aws-credentials@v6
         with:

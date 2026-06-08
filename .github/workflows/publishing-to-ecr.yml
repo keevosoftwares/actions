@@ -43,5 +43,5 @@ jobs:
 
       - name: Preparando e enviando imagem para o Amazon ECR
         run: |
-          docker build -t ${{ secrets.ECR_IMAGE }} -f ${{ vars.DOCKER_FILE }} ..
+          docker build -t ${{ secrets.ECR_IMAGE }} -f ${{ vars.DOCKER_FILE }} .
           docker push ${{ secrets.ECR_IMAGE }}

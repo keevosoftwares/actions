@@ -9,7 +9,6 @@ on:
 
 jobs:
   publish_image:
-    # uses: ./.github/workflows/publishing-to-ecr.yml
     uses: keevosoftwares/actions/.github/workflows/publishing-to-ecr.yml@master
     with:
       environment: ${{ inputs.environment }}

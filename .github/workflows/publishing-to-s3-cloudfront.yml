@@ -1,0 +1,45 @@
+name: Publicação do frontend
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Processo de deploy do frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: ${{ vars.WORKING_DIRECTORY }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Configurando Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ vars.WORKING_DIRECTORY }}/package-lock.json
+
+      - run: npm ci -f
+
+      - name: Compilação do projeto
+        run: ${{ vars.BUILD_COMMAND }}
+
+      - name: Configurando as credenciais na AWS
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Cópia da distribuição para o bucket
+        run: aws s3 sync ${{ vars.BUILD_OUTPUT_DIR }} s3://${{ secrets.AWS_S3_BUCKET }} --delete
+
+      - name: Criação de invalidação dentro do CloudFront
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*"

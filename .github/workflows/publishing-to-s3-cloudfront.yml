@@ -30,6 +30,8 @@ jobs:
       - run: npm ci -f
 
       - name: Compilação do projeto
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
         run: ${{ vars.BUILD_COMMAND }}
 
       - name: Inspect build output

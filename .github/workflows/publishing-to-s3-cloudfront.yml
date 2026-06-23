@@ -25,9 +25,9 @@ jobs:
         with:
           node-version: ${{ vars.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: ${{ vars.WORKING_DIRECTORY }}/package-lock.json
+          # cache-dependency-path: ${{ vars.WORKING_DIRECTORY }}/package-lock.json
 
-      - run: npm ci -f
+      - run: npm i -f
 
       - name: Compilação do projeto
         env:

@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ vars.NODE_VERSION }}
-          cache: 'npm'
+            # cache: 'npm'
           # cache-dependency-path: ${{ vars.WORKING_DIRECTORY }}/package-lock.json
 
       - run: npm i -f

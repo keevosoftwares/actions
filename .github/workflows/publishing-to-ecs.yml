@@ -18,6 +18,7 @@ jobs:
     name: Deploy ECS
     needs: publish_image
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment: ${{ inputs.environment }}
 
     steps:

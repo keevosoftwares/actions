@@ -38,7 +38,7 @@ jobs:
       - name: Verifica se o pacote já existe
         id: check-package
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
           if gh api "/orgs/${{ github.repository_owner }}/packages/nuget/${{ vars.PROJECT_NAME }}" --silent; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
@@ -52,11 +52,11 @@ jobs:
         with:
           owner: ${{ github.repository_owner }}
           package-name: ${{ vars.PROJECT_NAME }}
-          token: ${{ github.token }}
+          token: ${{ secrets.GIT_TOKEN }}
           package-type: nuget
           ignore-versions: ${{ vars.IGNORE_VERSIONS }}
 
       - name: Publicando pacote
         run: |
           cd out
-          dotnet nuget push **/*.nupkg --api-key ${{ github.token }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --skip-duplicate
+          dotnet nuget push **/*.nupkg --api-key ${{ secrets.GIT_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --skip-duplicate

@@ -25,10 +25,10 @@ jobs:
           dotnet-version: ${{ vars.DOTNET_VERSION }}
 
       - name: Restaurando dependências
-        run: dotnet restore /p:Configuration="Release"
+        run: Environment=${{ vars.VERSION_SUFFIX }} dotnet restore /p:Configuration="Release"
 
       - name: Compilando projeto
-        run: dotnet build -c Release -o out
+        run: Environment=${{ vars.VERSION_SUFFIX }} dotnet build -c Release --version-suffix ${{ vars.VERSION_SUFFIX }} -o out
 
       - name: Exclusão do pacote no nuget
         uses: actions/delete-package-versions@v4
@@ -37,6 +37,7 @@ jobs:
           package-name: ${{ vars.PROJECT_NAME }}
           token: ${{ github.token }}
           package-type: nuget
+          ignore-versions: ${{ vars.IGNORE_VERSIONS }}
 
       - name: Publicando pacote
         run: |

@@ -35,14 +35,26 @@ jobs:
       - name: Compilando projeto
         run: Environment=${{ vars.VERSION_SUFFIX }} dotnet build -c Release --version-suffix ${{ vars.VERSION_SUFFIX }} -o out
 
-      # - name: Exclusão do pacote no nuget
-      #   uses: actions/delete-package-versions@v5
-      #   with:
-      #     owner: ${{ github.repository_owner }}
-      #     package-name: ${{ vars.PROJECT_NAME }}
-      #     token: ${{ github.token }}
-      #     package-type: nuget
-      #     ignore-versions: ${{ vars.IGNORE_VERSIONS }}
+      - name: Verifica se o pacote já existe
+        id: check-package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "/orgs/${{ github.repository_owner }}/packages/nuget/${{ vars.PROJECT_NAME }}" --silent; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Exclusão do pacote no nuget
+        if: steps.check-package.outputs.exists == 'true'
+        uses: actions/delete-package-versions@v5
+        with:
+          owner: ${{ github.repository_owner }}
+          package-name: ${{ vars.PROJECT_NAME }}
+          token: ${{ github.token }}
+          package-type: nuget
+          ignore-versions: ${{ vars.IGNORE_VERSIONS }}
 
       - name: Publicando pacote
         run: |

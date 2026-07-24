@@ -11,6 +11,7 @@ jobs:
   build:
     name: Compilando pacote ${{ vars.PROJECT_NAME }}
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     timeout-minutes: 5
     permissions:
       contents: read

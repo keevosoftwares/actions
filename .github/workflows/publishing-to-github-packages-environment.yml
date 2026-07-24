@@ -35,14 +35,14 @@ jobs:
       - name: Compilando projeto
         run: Environment=${{ vars.VERSION_SUFFIX }} dotnet build -c Release --version-suffix ${{ vars.VERSION_SUFFIX }} -o out
 
-      - name: Exclusão do pacote no nuget
-        uses: actions/delete-package-versions@v5
-        with:
-          owner: ${{ github.repository_owner }}
-          package-name: ${{ vars.PROJECT_NAME }}
-          token: ${{ github.token }}
-          package-type: nuget
-          ignore-versions: ${{ vars.IGNORE_VERSIONS }}
+      # - name: Exclusão do pacote no nuget
+      #   uses: actions/delete-package-versions@v5
+      #   with:
+      #     owner: ${{ github.repository_owner }}
+      #     package-name: ${{ vars.PROJECT_NAME }}
+      #     token: ${{ github.token }}
+      #     package-type: nuget
+      #     ignore-versions: ${{ vars.IGNORE_VERSIONS }}
 
       - name: Publicando pacote
         run: |

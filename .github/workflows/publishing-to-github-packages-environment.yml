@@ -1,0 +1,44 @@
+name: Publicação de pacotes .NET
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Compilando pacote ${{ vars.PROJECT_NAME }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: write-all
+    defaults:
+      run:
+        working-directory: ${{ vars.WORKING_DIRECTORY }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setando versão do .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ vars.DOTNET_VERSION }}
+
+      - name: Restaurando dependências
+        run: dotnet restore /p:Configuration="Release"
+
+      - name: Compilando projeto
+        run: dotnet build -c Release -o out
+
+      - name: Exclusão do pacote no nuget
+        uses: actions/delete-package-versions@v4
+        with:
+          owner: ${{ github.repository_owner }}
+          package-name: ${{ vars.PROJECT_NAME }}
+          token: ${{ github.token }}
+          package-type: nuget
+
+      - name: Publicando pacote
+        run: |
+          cd out
+          dotnet nuget push **/*.nupkg --api-key ${{ github.token }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --skip-duplicate

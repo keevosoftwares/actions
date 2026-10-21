@@ -10,7 +10,7 @@ on:
 jobs:
   push_to_ecr:
     name: Criação da imagem no ECR
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: ${{ inputs.environment }}
     steps:
@@ -29,7 +29,8 @@ jobs:
 
       - name: Compilando data atual
         id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+        run: echo "date=$(date +'%Y%m%d%H%M%S')" >> "$GITHUB_OUTPUT"
+        #run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
 
       - name: Criando backup da imagem atual
         run: |
